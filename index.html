@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+	<head>
+		<title>position_try_font</title>
+		<style>
+			input, textarea {
+				font-size: 20px;
+				display: block;
+			}
+			#textarea_use_font {
+				font-size: 50px;
+				height: 500px;
+				width: 500px;
+				margin-top: 10px;
+				font-family: Arial, sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<input id="upload_font" type="file">
+		<textarea id="textarea_use_font"></textarea>
+		<script>
+			const textarea_use_font = document.getElementById("textarea_use_font"),
+				upload_font = document.getElementById("upload_font");
+
+			upload_font.addEventListener("change", function() {
+				let file = this.files[0];
+
+				if (file) {
+					let reader = new FileReader();
+
+					reader.onload = function(e) {
+						let fontUrl = e.target.result;
+
+						textarea_use_font.style.fontFamily = "customFont";
+						textarea_use_font.style.fontWeight = "normal";
+						textarea_use_font.style.fontStyle = "normal";
+
+						let newStyle = `
+							@font-face {
+								font-family: "customFont";
+								src: url(${fontUrl});
+							}
+						`;
+						let styleElement = document.createElement("style");
+
+						styleElement.appendChild(document.createTextNode(newStyle));
+						document.head.appendChild(styleElement);
+					};
+
+					reader.readAsDataURL(file);
+				}
+			});
+		</script>
+	</body>
+</html>
