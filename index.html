@@ -1,57 +1,77 @@
-<!doctype html>
-<html>
-	<head>
-		<title>position_try_font</title>
-		<style>
-			input, textarea {
-				font-size: 20px;
-				display: block;
-			}
-			#textarea_use_font {
-				font-size: 50px;
-				height: 500px;
-				width: 500px;
-				margin-top: 10px;
-				font-family: Arial, sans-serif;
-			}
-			background:  url("背景.png");
-		</style>
-	</head>
-	<body>
-		<input id="upload_font" type="file">
-		<textarea id="textarea_use_font"></textarea>
-		<script>
-			const textarea_use_font = document.getElementById("textarea_use_font"),
-				upload_font = document.getElementById("upload_font");
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フォント試し書きツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #text-area {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>フォント試し書きツール</h1>
+    <div id="controls">
+        <label for="font-upload">フォントをアップロード:</label>
+        <input type="file" id="font-upload" accept=".ttf, .woff, .otf">
+        <label for="font-size">サイズ:</label>
+        <input type="number" id="font-size" value="16">
+        <label for="font-color">色:</label>
+        <input type="color" id="font-color" value="#000000">
+        <label for="bold">太字</label>
+        <input type="checkbox" id="bold">
+        <label for="italic">斜体</label>
+        <input type="checkbox" id="italic">
+    </div>
+    <textarea id="text-area">ここにテキストを入力してください...</textarea>
 
-			upload_font.addEventListener("change", function() {
-				let file = this.files[0];
+    <script>
+        document.getElementById('font-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fontFace = new FontFace('customFont', e.target.result);
+                    fontFace.load().then(function(loadedFace) {
+                        document.fonts.add(loadedFace);
+                        document.getElementById('text-area').style.fontFamily = 'customFont';
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
 
-				if (file) {
-					let reader = new FileReader();
+        document.getElementById('font-size').addEventListener('input', function(event) {
+            document.getElementById('text-area').style.fontSize = event.target.value + 'px';
+        });
 
-					reader.onload = function(e) {
-						let fontUrl = e.target.result;
+        document.getElementById('font-color').addEventListener('input', function(event) {
+            document.getElementById('text-area').style.color = event.target.value;
+        });
 
-						textarea_use_font.style.fontFamily = "customFont";
-						textarea_use_font.style.fontWeight = "normal";
-						textarea_use_font.style.fontStyle = "normal";
+        document.getElementById('bold').addEventListener('change', function(event) {
+            document.getElementById('text-area').style.fontWeight = event.target.checked ? 'bold' : 'normal';
+        });
 
-						let newStyle = `
-							@font-face {
-								font-family: "customFont";
-								src: url(${fontUrl});
-							}
-						`;
-						let styleElement = document.createElement("style");
-
-						styleElement.appendChild(document.createTextNode(newStyle));
-						document.head.appendChild(styleElement);
-					};
-
-					reader.readAsDataURL(file);
-				}
-			});
-		</script>
-	</body>
+        document.getElementById('italic').addEventListener('change', function(event) {
+            document.getElementById('text-area').style.fontStyle = event.target.checked ? 'italic' : 'normal';
+        });
+    </script>
+</body>
 </html>
